@@ -70,3 +70,15 @@ jobs:
         with:
           files: app/build/outputs/apk/release/*.apk
           generate_release_notes: true
+
+      - name: Trigger F-Droid deploy
+        env:
+          GH_TOKEN: ${{ secrets.FDROID_DEPLOY_PAT }}
+        run: |
+          gh api repos/4cio/android-fdroidserver/dispatches \
+            --method POST \
+            -f event_type=deploy-apk \
+            -f "client_payload[repo]=${{ github.repository }}" \
+            -f "client_payload[tag]=${{ github.ref_name }}" \
+            -f "client_payload[package]=io.fourC.gol" \
+            -f "client_payload[apk_pattern]=app-release-unsigned.apk"
